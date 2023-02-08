@@ -54,6 +54,7 @@ class SafeApp(models.Model):
         blank=True,
         help_text="Clients that are only allowed to use this SafeApp",
     )
+    developer_website = models.URLField(null=True, blank=True)
 
     def get_access_control_type(self) -> AccessControlPolicy:
         if self.exclusive_clients.exists():
@@ -70,3 +71,32 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return f"Tag: {self.name}"
+
+
+class Feature(models.Model):
+    # A feature can be enabled for multiple Safe Apps and a Safe App can have multiple features enabled
+    safe_apps = models.ManyToManyField(
+        SafeApp, blank=True, help_text="Safe Apps where this feature is enabled."
+    )
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text="The unique name/key that identifies this feature",
+    )
+
+    def __str__(self) -> str:
+        return f"Safe App Feature: {self.key}"
+
+
+class SocialProfile(models.Model):
+    class Platform(models.TextChoices):
+        DISCORD = "DISCORD"
+        GITHUB = "GITHUB"
+        TWITTER = "TWITTER"
+
+    safe_app = models.ForeignKey(SafeApp, on_delete=models.CASCADE)
+    platform = models.CharField(choices=Platform.choices, max_length=255)
+    url = models.URLField()
+
+    def __str__(self) -> str:
+        return f"Social Profile: {self.platform} | {self.url}"
