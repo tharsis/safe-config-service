@@ -1,4 +1,5 @@
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 
@@ -7,7 +8,7 @@ class AboutJsonPayloadFormatViewTests(APITestCase):
         url = reverse("v1:about:detail")
         expected_json_response = {
             "name": "Safe Config Service",
-            "version": "2.57.0",
+            "version": "2.64.0",
             "apiVersion": "v1",
             "secure": False,
         }
@@ -23,7 +24,7 @@ class AboutSecureRequestViewTests(APITestCase):
         url = reverse("v1:about:detail")
         expected_json_response = {
             "name": "Safe Config Service",
-            "version": "2.57.0",
+            "version": "2.64.0",
             "api_version": "v1",
             "secure": True,
         }
@@ -37,7 +38,7 @@ class AboutSecureRequestViewTests(APITestCase):
         url = reverse("v1:about:detail")
         expected_json_response = {
             "name": "Safe Config Service",
-            "version": "2.57.0",
+            "version": "2.64.0",
             "api_version": "v1",
             "secure": False,
         }
@@ -46,3 +47,19 @@ class AboutSecureRequestViewTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, expected_json_response)
+
+
+class SwaggerTests(APITestCase):
+    def test_swagger_json_schema(self):
+        url = reverse("schema-json", args=(".json",))
+
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_swagger_ui(self):
+        url = reverse("schema-swagger-ui")
+
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
